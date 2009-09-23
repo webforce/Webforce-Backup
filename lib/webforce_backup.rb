@@ -5,15 +5,18 @@ module Webforce
     
     def initialize(options = {})
       @options = options
-      begin
+      
+      # connect to S3
       AWS::S3::Base.establish_connection!(
         :access_key_id     => @options[:amazon_access_key_id],
         :secret_access_key => @options[:amazon_secret_access_key]
       )
-      rescue Exception => e
-        "ERROR: Can't connect to amazon #{e}"
-        throw e
-      end
+      
+      # connect to database
+      
+      @db = Sequel.mysql(:host => @options[:db_host], :user => @options[:db_user], :password => @options[:db_pass])
+      
+      # run 
       backup_databases! if @options[:run_database_backup]      
       upload_backups! if @options[:run_upload]      
       cleanup! if @options[:run_cleanup]      
@@ -27,7 +30,6 @@ module Webforce
       tmp_path = @options[:tmp_path]
       backup_path = @options[:backup_path]
       
-      @db = Sequel.mysql(:host => @options[:db_host], :user => @options[:db_user], :password => @options[:db_pass])
       databases = @db.fetch("show databases")
       databases.map{|x| x[:Database]}.delete_if{|x| x == "information_schema"}.each do |db|
         file = "database-#{db}-#{date}.gz"
@@ -50,7 +52,7 @@ module Webforce
     end
     
     def cleanup!
-      puts "checking for old data .. " if v?
+      puts "checking for backups older than #{@options[:cleanup_days]} old " if v?
       AWS::S3::Bucket.find(@options[:bucket_name]).objects.each do |obj|
       	date = Time.parse(obj.about['last-modified'])
       	puts "age of #{obj.key} is #{time_ago(date)}" if v?
@@ -67,7 +69,7 @@ module Webforce
       seconds = Time.now - time
       puts seconds
       minutes = seconds / 60
-      hours = minutes / 60 
+      hours = minutes / 60
       days = hours / 24
       weeks = days / 7
       years = weeks / 52
