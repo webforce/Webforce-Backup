@@ -25,7 +25,7 @@ module Webforce
 
     
     def backup_databases!
-      puts "Starting Backup of Databases" if v?
+      puts "Backing up databases:"
       date = Time.now.strftime("%d-%b-%Y")
       tmp_path = @options[:tmp_path]
       backup_path = @options[:backup_path]
@@ -39,20 +39,27 @@ module Webforce
       	puts "moving #{file} from #{tmp_path} to #{backup_path}" if v?
       	`mv #{tmp_path}/#{file} #{backup_path}/#{file}`
       	puts "finished dumping #{db}" if v?
+      	print " #{db} ✔"
       end # end databases.map
+      print " ... done\n"
     end # end def backup_databases!
     
     def upload_backups!
+      puts "Starting Upload: "
       rio(@options[:backup_path]).files("*.gz").each do |backup_file|
-        puts "Uploading up #{backup_file.to_s.split("/").last} to bucket #{@options[:bucket_name]}" if v?
-        AWS::S3::S3Object.store(backup_file.to_s.split("/").last, open(backup_file.to_s), @options[:bucket_name])
+        filename = backup_file.to_s.split("/").last #FIXME - use proper platform independent way
+        puts "Uploading up #{filename} to bucket #{@options[:bucket_name]}" if v?
+        print " #{filename} ✔ "
+        AWS::S3::S3Object.store(filename, open(backup_file.to_s), @options[:bucket_name])
         puts "done. Deleting source file" if v?
         backup_file.unlink
         puts "deleted" if v?
       end
+      print " ... done\n"
     end
     
     def cleanup!
+      puts "Starting Cleanup:"
       puts "checking for backups older than #{@options[:cleanup_days]} old " if v?
       AWS::S3::Bucket.find(@options[:bucket_name]).objects.each do |obj|
         seconds_ago = Time.now - Time.parse(obj.about['last-modified'])
@@ -60,11 +67,12 @@ module Webforce
       	
       	if seconds_ago > 60 * 60 * 24 * @options[:cleanup_days]
       	  puts "DELETING #{obj.key}" if v?
+      	  print " del: #{obj.key} "
       	  obj.delete
       	else
       	  puts "not deleting #{obj.key}" if v?
       	end
-      	
+      	print " ... done\n"
       end
     end
     
