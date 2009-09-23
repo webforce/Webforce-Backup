@@ -1,1 +1,8 @@
+
 Backup Script for backing up to amazon s3 from disk and mysql
+
+Requires the following gems:
+
+rio aws-s3 sequel inifile
+
+run ./wfbackup.rb -h for usage instructions after setting up the 2 config files

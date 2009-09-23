@@ -1,4 +1,5 @@
-#require './time_ago.rb'
+# (c) Webforce Ltd, www.webforce.co.nz
+# All Rights Reserved
 
 module Webforce
   class Backup
@@ -76,13 +77,23 @@ module Webforce
       print " ... done\n"
     end
     
+    def backup_directories!
+      @config[:dirs].each do |dir|
+        verbose = @options[:verbose] ? 'v' : ''
+        
+        cmd = "tar -c#{verbose}zf #{@options[:tmp_dir]}/#{dir.name}.tar.gz #{dir.dir}"
+        puts "running command: #{cmd}" if v?
+        `cmd`
+      end
+    end
+    
     private
     
     def v?
       @options[:verbose]
     end
     
-    def time_ago(seconds) 
+    def time_ago(seconds) # todo make this better
       minutes = seconds / 60
       hours = minutes / 60
       days = hours / 24

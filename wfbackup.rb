@@ -14,9 +14,10 @@ require 'inifile'
 
 # config/*
 # ruby config
-require 'config/config.rb'
 # mysql config
-config = IniFile.new("config/database.cnf")
+db_config = IniFile.new("config/database.cnf")
+@dirs = []
+require 'config/config.rb'
 
 require 'lib/webforce_backup.rb'
 
@@ -24,13 +25,14 @@ options = {
   :verbose => false, 
   :tmp_path => './tmp',
   :backup_path => './done',
-  :db_user => config[:client]['user'], 
-  :db_pass => config[:client]['password'], 
-  :db_host => config[:client]['host'],
+  :db_user => db_config[:client]['user'], 
+  :db_pass => db_config[:client]['password'], 
+  :db_host => db_config[:client]['host'],
   :amazon_access_key_id => AMAZON_ACCESS_KEY_ID,
   :amazon_secret_access_key => AMAZON_SECRET_ACCESS_KEY,
   :bucket_name => BUCKET_NAME,
-  :cleanup_days => 7}
+  :cleanup_days => 7,
+  :dirs => @dirs}
 
 OptionParser.new do |opts|
   opts.banner = "Usage: wfbackup.rb [options]"
