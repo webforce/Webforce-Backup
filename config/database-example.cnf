@@ -1,0 +1,6 @@
+; used to prevent passing the password on the command line
+[client]
+host = localhost
+user = root
+password = password
+
