@@ -29,7 +29,8 @@ options = {
   :db_host => config[:client]['host'],
   :amazon_access_key_id => AMAZON_ACCESS_KEY_ID,
   :amazon_secret_access_key => AMAZON_SECRET_ACCESS_KEY,
-  :bucket_name => BUCKET_NAME}
+  :bucket_name => BUCKET_NAME,
+  :cleanup_days => 7}
 
 OptionParser.new do |opts|
   opts.banner = "Usage: wfbackup.rb [options]"
@@ -62,5 +63,7 @@ OptionParser.new do |opts|
     exit
   end
 end.parse!
+
+STDOUT.sync = true
 
 wfbackup = Webforce::Backup.new(options)

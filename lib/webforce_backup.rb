@@ -67,13 +67,13 @@ module Webforce
       	
       	if seconds_ago > 60 * 60 * 24 * @options[:cleanup_days]
       	  puts "DELETING #{obj.key}" if v?
-      	  print " del: #{obj.key} "
+      	  print " deleted: #{obj.key} "
       	  obj.delete
       	else
       	  puts "not deleting #{obj.key}" if v?
       	end
-      	print " ... done\n"
       end
+      print " ... done\n"
     end
     
     private
