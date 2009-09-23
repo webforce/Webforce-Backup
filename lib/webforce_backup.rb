@@ -31,6 +31,7 @@ module Webforce
       backup_path = @options[:backup_path]
       
       databases = @db.fetch("show databases")
+  
       databases.map{|x| x[:Database]}.delete_if{|x| x == "information_schema"}.each do |db|
         file = "database-#{db}-#{date}.gz"
       	puts "dumping #{db} into #{tmp_path}/#{file}" if v?
