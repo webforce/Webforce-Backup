@@ -18,7 +18,7 @@ require 'config/config.rb'
 # mysql config
 config = IniFile.new("config/database.cnf")
 
-require 'lib/wfbackup_class.rb'
+require 'lib/webforce_backup.rb'
 
 options = {
   :verbose => false, 

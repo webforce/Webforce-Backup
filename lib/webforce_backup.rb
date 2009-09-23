@@ -53,7 +53,7 @@ module Webforce
       puts "checking for old data .. " if v?
       AWS::S3::Bucket.find(@options[:bucket_name]).objects.each do |obj|
       	date = Time.parse(obj.about['last-modified'])
-      	puts "age of #{obj} is #{time_ago(date)}" if v?
+      	puts "age of #{obj.key} is #{time_ago(date)}" if v?
       end
     end
     
