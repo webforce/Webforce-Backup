@@ -54,8 +54,16 @@ module Webforce
     def cleanup!
       puts "checking for backups older than #{@options[:cleanup_days]} old " if v?
       AWS::S3::Bucket.find(@options[:bucket_name]).objects.each do |obj|
-      	date = Time.parse(obj.about['last-modified'])
-      	puts "age of #{obj.key} is #{time_ago(date)}" if v?
+        seconds_ago = Time.now - Time.parse(obj.about['last-modified'])
+      	puts "age of #{obj.key} is #{time_ago(seconds_ago)}" if v?
+      	
+      	if seconds_ago > 60 * 60 * 24 * @options[:cleanup_days]
+      	  puts "DELETING #{obj.key}" if v?
+      	  obj.delete
+      	else
+      	  puts "not deleting #{obj.key}" if v?
+      	end
+      	
       end
     end
     
@@ -65,9 +73,7 @@ module Webforce
       @options[:verbose]
     end
     
-    def time_ago(time) 
-      seconds = Time.now - time
-      puts seconds
+    def time_ago(seconds) 
       minutes = seconds / 60
       hours = minutes / 60
       days = hours / 24
