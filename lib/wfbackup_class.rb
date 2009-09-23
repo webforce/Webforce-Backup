@@ -14,7 +14,9 @@ module Webforce
         "ERROR: Can't connect to amazon #{e}"
         throw e
       end
-      
+      backup_databases! if @options[:run_database_backup]      
+      upload_backups! if @options[:run_upload]      
+      cleanup! if @options[:run_cleanup]      
     end
     
 
@@ -25,14 +27,14 @@ module Webforce
       tmp_path = @options[:tmp_path]
       backup_path = @options[:backup_path]
       
-      DB = Sequel.mysql(:host => @options[:db_host], :user => @options[:db_user], :password => @options[:db_pass])
-      databases = DB.fetch("show databases")
+      @db = Sequel.mysql(:host => @options[:db_host], :user => @options[:db_user], :password => @options[:db_pass])
+      databases = @db.fetch("show databases")
       databases.map{|x| x[:Database]}.delete_if{|x| x == "information_schema"}.each do |db|
         file = "database-#{db}-#{date}.gz"
       	puts "dumping #{db} into #{tmp_path}/#{file}" if v?
-      	`mysqldump --defaults-file=database.cnf #{db} | gzip > #{tmp_path}/#{file}`
+      	`mysqldump --defaults-file=config/database.cnf #{db} | gzip > #{tmp_path}/#{file}`
       	puts "moving #{file} from #{tmp_path} to #{backup_path}" if v?
-      	`mv #{path}/#{file} #{backup_path}/#{file}`
+      	`mv #{tmp_path}/#{file} #{backup_path}/#{file}`
       	puts "finished dumping #{db}" if v?
       end # end databases.map
     end # end def backup_databases!
@@ -47,11 +49,11 @@ module Webforce
       end
     end
     
-    def clean_old_backups!
-      puts "checking for old data .. "
+    def cleanup!
+      puts "checking for old data .. " if v?
       AWS::S3::Bucket.find(@options[:bucket_name]).objects.each do |obj|
       	date = Time.parse(obj.about['last-modified'])
-      	puts "age is #{time_ago(date)}"
+      	puts "age of #{obj} is #{time_ago(date)}" if v?
       end
     end
     

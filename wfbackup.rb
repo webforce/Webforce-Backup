@@ -23,7 +23,7 @@ require 'lib/wfbackup_class.rb'
 options = {
   :verbose => false, 
   :tmp_path => './tmp',
-  :backup_path => './done'
+  :backup_path => './done',
   :db_user => config[:client]['user'], 
   :db_pass => config[:client]['password'], 
   :db_host => config[:client]['host'],
@@ -33,10 +33,27 @@ options = {
 
 OptionParser.new do |opts|
   opts.banner = "Usage: wfbackup.rb [options]"
+
   opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
     options[:verbose] = v
+  end
+
+  opts.on("-d", "--databases", "Backup Database Files") do |v|
+    options[:run_database_backup] = v
+  end
+
+  opts.on("-u", "--upload", "Upload files in done to s3") do |v|
+    options[:run_upload] = v
+  end
+
+  opts.on("-c", "--cleanup", "Remove old files from s3") do |v|
+    options[:run_cleanup] = v
+  end
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
   end
 end.parse!
 
 wfbackup = Webforce::Backup.new(options)
-#wfbackup.backup_databases!
