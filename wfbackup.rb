@@ -46,8 +46,9 @@ OptionParser.new do |opts|
     options[:run_upload] = v
   end
 
-  opts.on("-c", "--cleanup", "Remove old files from s3") do |v|
-    options[:run_cleanup] = v
+  opts.on("-c", "--cleanup [DAYS]", Integer, "Remove files from S3 older than DAYS") do |v|
+    options[:run_cleanup] = true
+    options[:cleanup_days] = v || 7
   end
 
   opts.on_tail("-h", "--help", "Show this message") do
