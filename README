@@ -15,7 +15,15 @@ If you specify just a user account, you must use the -s flag to specify database
 
 config/config.rb holds Amazon S3 configuration, as well as a list of directories to archive. 
 
-./wfbackup.rb -h           Provides Help
+Usage: wfbackup.rb [options]
+    -v, --[no-]verbose               Run verbosely
+    -d, --databases                  Backup Database Files
+    -s, --specific DB1,DB2,DB3       Backup specific databases rather than all.
+    -u, --upload                     Upload files in done to s3
+    -c, --cleanup [DAYS]             Remove files from S3 older than DAYS
+    -a, --archive                    Archive Directories specified in config
+    -f, --full                       Full Run. Same as -d -u -c
+    -h, --help                       Show this message
 
 
 
