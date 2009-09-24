@@ -53,11 +53,16 @@ OptionParser.new do |opts|
     options[:run_cleanup] = true
     options[:cleanup_days] = v || 7
   end
+
+  opts.on('-a', '--archive', 'Archive Directories specified in config') do |v|
+    options[:run_archive] = v
+  end
   
   opts.on("-f", "--full", "Full Run. Same as -d -u -c") do |v|
     options[:run_database_backup] = true
     options[:run_cleanup] = true
     options[:run_upload] = true
+    options[:run_archive] = true
   end
 
   opts.on_tail("-h", "--help", "Show this message") do

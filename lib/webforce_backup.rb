@@ -19,6 +19,7 @@ module Webforce
       
       # run 
       backup_databases! if @options[:run_database_backup]      
+      backup_directories! if @options[:run_archive]      
       upload_backups! if @options[:run_upload]      
       cleanup! if @options[:run_cleanup]      
     end
@@ -78,13 +79,18 @@ module Webforce
     end
     
     def backup_directories!
-      @config[:dirs].each do |dir|
+      puts "Backing up directories:"
+      date = Time.now.strftime("%d-%b-%Y")
+      @options[:dirs].each do |dir|
         verbose = @options[:verbose] ? 'v' : ''
-        
-        cmd = "tar -c#{verbose}zf #{@options[:tmp_dir]}/#{dir.name}.tar.gz #{dir.dir}"
+        filename = "dir-#{dir[:name]}-#{date}.tar.gz"  
+        cmd = "tar -c#{verbose}zf #{@options[:tmp_path]}/#{filename} #{dir[:dir]}"
         puts "running command: #{cmd}" if v?
-        `cmd`
+        `#{cmd}`
+	`mv #{@options[:tmp_path]}/#{filename} #{@options[:backup_path]}/`
+ 	print " #{dir[:dir]} ✔ "
       end
+      print " ... done \n"
     end
     
     private
