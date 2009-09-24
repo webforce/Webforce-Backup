@@ -1,8 +1,22 @@
-
 Backup Script for backing up to amazon s3 from disk and mysql
 
 Requires the following gems:
 
 rio aws-s3 sequel inifile
 
-run ./wfbackup.rb -h for usage instructions after setting up the 2 config files
+
+Usage:
+
+First, edit config/database.cnf and config/config.rb
+
+config/database.cnf holds login information for mysql. 
+If you specify the root password here, the script will backup all databases. 
+If you specify just a user account, you must use the -s flag to specify databases to backup, e.g. ./wfbackup -s mydb1,mydb2
+
+config/config.rb holds Amazon S3 configuration, as well as a list of directories to archive. 
+
+./wfbackup.rb -h           Provides Help
+
+
+
+
