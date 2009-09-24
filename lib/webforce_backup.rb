@@ -31,10 +31,10 @@ module Webforce
       date = Time.now.strftime("%d-%b-%Y")
       tmp_path = @options[:tmp_path]
       backup_path = @options[:backup_path]
-      
-      databases = @db.fetch("show databases")
-  
-      databases.map{|x| x[:Database]}.delete_if{|x| x == "information_schema"}.each do |db|
+      if @options[:databases].size < 1
+        @options[:databases] = @db.fetch("show databases").map{|x| x[:Database]}.delete_if{|x| x == "information_schema"}
+      end  
+      @options[:databases].each do |db|
         file = "database-#{db}-#{date}.gz"
       	puts "dumping #{db} into #{tmp_path}/#{file}" if v?
       	`mysqldump --defaults-file=config/database.cnf #{db} | gzip > #{tmp_path}/#{file}`

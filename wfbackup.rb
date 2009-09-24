@@ -32,7 +32,8 @@ options = {
   :amazon_secret_access_key => AMAZON_SECRET_ACCESS_KEY,
   :bucket_name => BUCKET_NAME,
   :cleanup_days => 7,
-  :dirs => @dirs}
+  :dirs => @dirs,
+  :databases => []}
 
 OptionParser.new do |opts|
   opts.banner = "Usage: wfbackup.rb [options]"
@@ -44,11 +45,14 @@ OptionParser.new do |opts|
   opts.on("-d", "--databases", "Backup Database Files") do |v|
     options[:run_database_backup] = v
   end
-
+  opts.on("-s DB1,DB2,DB3", "--specific DB1,DB2,DB3", "Backup specific databases rather than all.") do |v|
+    options[:run_database_backup] = true
+    options[:databases] = v.split(',')
+  end
   opts.on("-u", "--upload", "Upload files in done to s3") do |v|
     options[:run_upload] = v
   end
-
+  
   opts.on("-c", "--cleanup [DAYS]", Integer, "Remove files from S3 older than DAYS") do |v|
     options[:run_cleanup] = true
     options[:cleanup_days] = v || 7
@@ -70,7 +74,5 @@ OptionParser.new do |opts|
     exit
   end
 end.parse!
-
 STDOUT.sync = true
-
 wfbackup = Webforce::Backup.new(options)
